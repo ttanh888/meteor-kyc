@@ -9,7 +9,7 @@ const SyncedCron = {
     logger: null,
 
     //Name of collection to use for synchronisation and logging
-    collectionName: 'crons',
+    collectionName: 'kyc_crons',
 
     //Default to using localTime
     utc: false,

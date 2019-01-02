@@ -1,4 +1,4 @@
-import SyncedCron from './cron'
+import SyncedCron from './SyncedCron'
 
 if (Meteor.isServer) {
   SyncedCron.config({

@@ -1,4 +1,4 @@
-const axior = Npm.require('later')
+import Axior from 'axios'
 
 const KYCApi = {
   API_URL: "https://api.test.trustdock.io/v1",
@@ -19,7 +19,7 @@ const KYCApi = {
       "type": document,
       "images": images
     }
-    return await axior.post(`${this.API_URL}/documents`, data, config)
+    return await Axior.post(`${this.API_URL}/documents`, data, config)
       .catch(error => {
         return error.response
       })
@@ -44,7 +44,7 @@ const KYCApi = {
       }
     }
 
-    return await axior.post(`${this.API_URL}/review`, data, config)
+    return await Axior.post(`${this.API_URL}/review`, data, config)
       .catch(error => {
         return error.response
       })
@@ -58,11 +58,11 @@ const KYCApi = {
         'Authorization': `Bearer ${this.API_TOKEN}`
       }
     }
-    return await axior.get(`${this.API_URL}/review/${_kycId}`, config)
+    return await Axior.get(`${this.API_URL}/review/${_kycId}`, config)
       .catch(error => {
         return error.response
       })
   }
 }
 
-export default KYCApi
+module.exports = KYCApi
