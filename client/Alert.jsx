@@ -10,6 +10,7 @@ const Alert = {
   throwNotice: function (message) {
     Notices.remove({})
     const notice = Notices.insert({ message: message })
+    console.log(notice)
     Meteor.setTimeout(function () {
       Notices.remove(notice)
     }, 4000)
@@ -31,16 +32,14 @@ class AlertContainer extends React.Component {
 
   }
   render() {
-    const { notices,  errors } = this.props
-    let notice_list = []
-    let error_list = []
-    let notice = notices.map((notice, i) => {
-      let notice_dom = <p key={i} className="alert notice">{notice.message}</p>
-      notice_list.push(notice_dom)
+    let { notices,  errors } = this.props
+    notices = [{message: 'notices'}]
+    errors = [{message: 'errors'}]
+    let notice_list = notices.map((notice, i) => {
+      return <p key={i} className="alert notice">{notice.message}</p>
     })
-    let error = errors.map((error, i) => {
-      let error_dom = <p key={i} className="alert error">{error.message}</p>
-      error_list.push(error_dom)
+    let error_list = errors.map((error, i) => {
+      return <p key={i} className="alert error">{error.message}</p>
     })
     return (
       <div className="alert_area">

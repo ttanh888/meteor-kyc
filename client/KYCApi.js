@@ -1,11 +1,18 @@
-import Axior from 'axios'
+import * as axios from 'axios'
+
+Meteor.startup(function() {
+  const env = {
+    NODE_ENV: 'development'
+  }
+  process.env = env
+})
 
 const KYCApi = {
   API_URL: "https://api.test.trustdock.io/v1",
   PROJECT_TOKEN: "xvF2hz2xwUADkuY9oSN28tbw",
   API_TOKEN: "s4ihKzn4VdjqNcB4xPNdaTjd",
 
-  upload: async function (_info) {
+  upload: function (_info) {
     const { images, document } = _info
     if (!images || !document) return Meteor.Error(403, 'Required')
     const config = {
@@ -19,12 +26,13 @@ const KYCApi = {
       "type": document,
       "images": images
     }
-    return await Axior.post(`${this.API_URL}/documents`, data, config)
+
+    return axios.post(`${this.API_URL}/documents`, data, config)
       .catch(error => {
         return error.response
       })
   },
-  'verify': async function (_data) {
+  'verify': function (_data) {
     if (!_data) return null
     const { token, userInfo } = _data
     const config = {
@@ -44,12 +52,12 @@ const KYCApi = {
       }
     }
 
-    return await Axior.post(`${this.API_URL}/review`, data, config)
+    return axios.post(`${this.API_URL}/review`, data, config)
       .catch(error => {
         return error.response
       })
   },
-  'check': async function (_kycId) {
+  'check': function (_kycId) {
     if (!_kycId) return null
     const config = {
       headers: {
@@ -58,11 +66,10 @@ const KYCApi = {
         'Authorization': `Bearer ${this.API_TOKEN}`
       }
     }
-    return await Axior.get(`${this.API_URL}/review/${_kycId}`, config)
+    return axios.get(`${this.API_URL}/review/${_kycId}`, config)
       .catch(error => {
         return error.response
       })
   }
 }
-
 module.exports = KYCApi

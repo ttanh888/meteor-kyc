@@ -1,0 +1,23 @@
+.alert_area {
+  position: fixed;
+  top: 6rem;
+  left: 50%;
+  margin-left: -15rem;
+  z-index: 100;
+  width: 30rem;
+  color: #fff;
+  border-radius: 5px;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.4);
+}
+
+.alert_area .alert {
+  padding: 1rem;
+}
+
+.alert_area .error {
+   background: #ff1f33;
+ }
+
+.alert_area.notice {
+   background: #5bcc46;
+ }

@@ -6,7 +6,8 @@ import {
 } from './Constant'
 
 import KYCApi from './KYCApi.js'
-// import '../server/KYC.js'
+import { Alert } from './Alert'
+import '../server/KYC.js'
 
 export default class KYCRegist extends React.Component {
   constructor(props) {
@@ -129,7 +130,7 @@ export default class KYCRegist extends React.Component {
       const upload = await KYCApi.upload({ images: imgBase64Arr, document: document})
       if (upload && upload.status === 200) {
         const token = upload.data.token,
-          verifyParam = { _this, token}
+              verifyParam = { _this, token}
         resolve(verifyParam)
       } else {
         reject(console.log(KYC_ERROR_CODE[upload.data.errors[0]['code']]))
@@ -211,7 +212,6 @@ export default class KYCRegist extends React.Component {
   _getKYCs() {
     const { currentUser } = this.state.props,
       _this = this
-    console.log(currentUser)
     const query = {}
     query['deletedDate'] = ''
     query['userInfo.id'] = currentUser._id
@@ -272,6 +272,10 @@ export default class KYCRegist extends React.Component {
     }
     return(
       <div className="kyc_regist">
+        {/*<div className="alert_area">*/}
+          {/*<p className="alert notice">Test</p>*/}
+        {/*</div>*/}
+        { Alert.throwNotice('test')}
         { content }
       </div>
     )
