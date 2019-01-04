@@ -1,6 +1,5 @@
 import React from 'react'
 import { Meteor } from 'meteor/meteor'
-import { Session } from 'meteor/session'
 import { withTracker } from 'meteor/react-meteor-data'
 
 const Notices = new Meteor.Collection(null)

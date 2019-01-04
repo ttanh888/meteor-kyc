@@ -27,12 +27,13 @@ export default class KYC extends React.Component {
   }
   render() {
     const { props, config } = this.state
+    const { user } = props
     let content = 'Kyc not available or rejected please contact to administrator'
     if (config) {
-      if (props.isAdmin) {
+      if (user && user.isAdmin) {
         content = <Settings info={config} />
       } else if(Object.keys(config).length) {
-        content = <Register currentUser = {props.currentUser} settingInfo={config} />
+        content = <Register user = {user} settingInfo={config} />
       }
     }
     return(

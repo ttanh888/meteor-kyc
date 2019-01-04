@@ -51,7 +51,6 @@ Meteor.startup(function() {
       },
       'kyc.uploadFile': function (userId, imageBase64, imageType, S3Info) {
         if (!userId || !imageBase64 || !imageType || !S3Info) throw new Meteor.Error(403, 'required')
-        console.log(S3Info)
         S3.config.update({ accessKeyId: S3Info.s3Bucket, secretAccessKey: S3Info.s3SecretKey })
         S3.config.region = S3Info.s3Region
 

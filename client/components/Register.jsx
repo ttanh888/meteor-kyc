@@ -44,13 +44,13 @@ export default class Register extends React.Component {
     if (!submit) return Alert.throwError('Can not submit to KYC')
     await this._uploadImages()
     let { data, imageS3Paths, documentSelected } = this.state
-    const { currentUser } = this.state.props
+    const { user } = this.state.props
     const kycData = {
       images: imageS3Paths,
       document: data.document,
       trustDockInfo: submit,
       userInfo: {
-        id: currentUser._id,
+        id: user._id,
         data: data.userData
       }
     }
@@ -141,22 +141,14 @@ export default class Register extends React.Component {
   }
   _verifyRequest({ _this,token }) {
     const { props, data } = _this.state,
-      { currentUser } = props
-    let userBirth = ''
-    if (currentUser.profile.birthYear) userBirth = `${currentUser.profile.birthYear}`
-    if (currentUser.profile.birthDay) userBirth = `${userBirth}-${("0" + currentUser.profile.birthDay).slice(-2)}`
-    if (currentUser.profile.birthMonth) userBirth = `${userBirth}-${("0" + currentUser.profile.birthMonth).slice(-2)}`
-    let userAddress = ''
-    if (currentUser.profile.addressNumber) userAddress = `${userAddress} ${currentUser.profile.addressNumber}`
-    if (currentUser.profile.addressPrefecture) userAddress = `${userAddress} ${currentUser.profile.addressPrefecture}`
-    if (currentUser.profile.addressText) userAddress = `${userAddress} ${currentUser.profile.addressText}`
+      { user } = props
     const info = {
       token: token,
       userInfo: {
-        "name": currentUser.profile.name || '',
-        "birth": userBirth,
-        "gender": currentUser.profile.gender || '',
-        "address": userAddress.trim()
+        "name": user.name || '',
+        "birth": user.birth || '',
+        "gender": user.gender || '',
+        "address": user.address
       }
     }
     return new Promise(async (resolve, reject) => {
@@ -182,9 +174,9 @@ export default class Register extends React.Component {
     })
   }
   _uploadFile(_imageBase64, _fileType) {
-    const { currentUser, settingInfo } = this.state.props
+    const { user, settingInfo } = this.state.props
     return new Promise((resolve, reject) => {
-      Meteor.call('kyc.uploadFile', currentUser._id,  _imageBase64, _fileType, settingInfo, function (err, res) {
+      Meteor.call('kyc.uploadFile', user.id,  _imageBase64, _fileType, settingInfo, function (err, res) {
         if (err) return reject(Alert.throwError('Can not upload image'))
         resolve(res)
       })
@@ -212,11 +204,11 @@ export default class Register extends React.Component {
     })
   }
   _getKYCs() {
-    const { currentUser } = this.state.props,
+    const { user } = this.state.props,
       _this = this
     const query = {}
     query['deletedDate'] = ''
-    query['userInfo.id'] = currentUser._id
+    query['userInfo.id'] = user._id
     Meteor.call('kycs.get', query, {}, function (err, res) {
       if (err) return console.log('Can not get let KYCs1')
       if (res.count > 0) {
