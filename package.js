@@ -15,10 +15,9 @@ Package.onUse(function(api) {
   api.versionsFrom('1.8.0.1');
   api.use('ecmascript');
   api.use(['underscore', 'check', 'logging'], 'server');
+  api.mainModule('main.jsx', 'client');
   api.addFiles('asset/css/main.css', 'client');
-  api.mainModule('client/Register.jsx', 'client');
-  api.mainModule('server/Cron.js', 'server');
-  api.mainModule('server/KYC.js', 'server');
+  api.addFiles(['server/KYC.js', 'server/Cron.js', 'server/Setting.js'], 'server');
 });
 
 Package.onTest(function(api) {

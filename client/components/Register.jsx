@@ -3,13 +3,13 @@ import { Meteor } from 'meteor/meteor'
 import {
   KYC_PERSONAL_DOCUMENT_TYPE,
   KYC_ERROR_CODE
-} from './Constant'
+} from '../../common/Constant'
 
-import KYCApi from './KYCApi.js'
+import KYCApi from '../KYCApi.js'
 import { Alert } from './Alert'
-import '../server/KYC.js'
+import '../../server/KYC.js'
 
-export default class KYCRegist extends React.Component {
+export default class Register extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -25,12 +25,13 @@ export default class KYCRegist extends React.Component {
       documentSelected: [],
       buttonDisable: false
     }
-    this.handleSubmit = this.handleSubmit.bind(this)
     this.handleChange = this.handleChange.bind(this)
     this.handleImageChange = this.handleImageChange.bind(this)
+    this.handleSubmit = this.handleSubmit.bind(this)
   }
   componentWillMount() {
     this._getKYCs()
+    this._configKYCInfo()
   }
   componentWillReceiveProps(nextProps) {
     this.setState({
@@ -40,7 +41,7 @@ export default class KYCRegist extends React.Component {
   async handleSubmit() {
     await this._disableSubmitButton()
     const submit = await this._submitToKYC()
-    if (!submit) return console.log('Can not submit to KYC')
+    if (!submit) return Alert.throwError('Can not submit to KYC')
     await this._uploadImages()
     let { data, imageS3Paths, documentSelected } = this.state
     const { currentUser } = this.state.props
@@ -59,7 +60,7 @@ export default class KYCRegist extends React.Component {
       data = this._resetData()
       this.setState({ kyc, data, documentSelected })
       this._disableSubmitButton()
-      console.log(`Request join KYC successful`)
+      Alert.throwNotice(`Request join KYC successful`)
     }
   }
   handleChange({ target }) {
@@ -86,9 +87,10 @@ export default class KYCRegist extends React.Component {
     }
   }
   _insertKyc(_info) {
+    console.log(_info)
     return new Promise((resolve, reject) => {
       Meteor.call('kyc.insert', _info, function (err, res) {
-        if (err) return reject(console.log('Can not insert KYC'))
+        if (err) return reject(Alert.throwError('Can not insert KYC1'))
         resolve (res)
       })
     })
@@ -109,20 +111,20 @@ export default class KYCRegist extends React.Component {
           .then(this._statusCheckJoinKYC)
     } catch (e) {
       this._disableSubmitButton()
-      console.log('Request error')
+      Alert.throwError('Request error')
     }
   }
   _validation() {
     const { images, document } = this.state.data
-    if (!images || !images.length) return console.log('You must select image')
-    if (!document) return console.log('You must select a document type')
+    if (!images || !images.length) return Alert.throwError('You must select image')
+    if (!document) return Alert.throwError('You must select a document type')
     return true
   }
   _uploadToKyc() {
     const { data } = this.state,
       _this = this
     const { images, document } = data
-    if (!images || !document) return console.log('Please select image and document type')
+    if (!images || !document) return Alert.throwError('Please select image and document type')
     let imgBase64Arr = images.map(v => {
       return v.base64.replace(/^data:\w+\/\w+;base64,/, '')
     })
@@ -133,7 +135,7 @@ export default class KYCRegist extends React.Component {
               verifyParam = { _this, token}
         resolve(verifyParam)
       } else {
-        reject(console.log(KYC_ERROR_CODE[upload.data.errors[0]['code']]))
+        reject(Alert.throwError(KYC_ERROR_CODE[upload.data.errors[0]['code']]))
       }
     })
   }
@@ -164,7 +166,7 @@ export default class KYCRegist extends React.Component {
         _this.setState({ data })
         resolve(verify.data.id, info.userInfo)
       } else {
-        reject(console.log(`Can not verify request, KYC require name, birth, gender and address.
+        reject(Alert.throwError(`Can not verify request, KYC require name, birth, gender and address.
                                 Please check and update your profile`))
       }
     })
@@ -180,13 +182,13 @@ export default class KYCRegist extends React.Component {
     })
   }
   _uploadFile(_imageBase64, _fileType) {
-    const { currentUser } = this.state.props
+    const { currentUser, settingInfo } = this.state.props
     return new Promise((resolve, reject) => {
-      // Meteor.call('kyc.uploadFile', currentUser._id,  _imageBase64, _fileType, function (err, res) {
-      //   if (err) return reject(console.log('Can not upload image'))
-      //   resolve(res)
-      // })
-      resolve('https://s3image.com/FQIpPNn4.jpeg')
+      Meteor.call('kyc.uploadFile', currentUser._id,  _imageBase64, _fileType, settingInfo, function (err, res) {
+        if (err) return reject(Alert.throwError('Can not upload image'))
+        resolve(res)
+      })
+      // resolve('https://s3image.com/FQIpPNn4.jpeg')
     })
   }
   _disableSubmitButton() {
@@ -216,7 +218,7 @@ export default class KYCRegist extends React.Component {
     query['deletedDate'] = ''
     query['userInfo.id'] = currentUser._id
     Meteor.call('kycs.get', query, {}, function (err, res) {
-      if (err) return console.log('Can not get KYCs')
+      if (err) return console.log('Can not get let KYCs1')
       if (res.count > 0) {
         let documentSelected = res.data.map(item => {
           return item.document
@@ -227,6 +229,14 @@ export default class KYCRegist extends React.Component {
         })
       }
     })
+  }
+  _configKYCInfo() {
+    const  { settingInfo } = this.state.props
+    console.log(settingInfo)
+    const { apiURL, projectToken, apiToken } = settingInfo
+    if (apiURL) KYCApi.API_URL = apiURL
+    if (projectToken) KYCApi.PROJECT_TOKEN = projectToken
+    if (apiToken) KYCApi.API_TOKEN = apiToken
   }
   render() {
     const { data, listKYC, documentSelected, buttonDisable } = this.state
@@ -272,10 +282,6 @@ export default class KYCRegist extends React.Component {
     }
     return(
       <div className="kyc_regist">
-        {/*<div className="alert_area">*/}
-          {/*<p className="alert notice">Test</p>*/}
-        {/*</div>*/}
-        { Alert.throwNotice('test')}
         { content }
       </div>
     )

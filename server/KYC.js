@@ -4,10 +4,6 @@ Meteor.startup(function() {
   const KYCs = new Mongo.Collection('kycs')
   if (Meteor.isServer) {
     const S3 = new AWS.S3()
-    S3.config.update({ accessKeyId: Meteor.settings.aws.S3_KYC_BUCKET, secretAccessKey: Meteor.settings.aws.S3_SECRET_KEY })
-    S3.config.region = Meteor.settings.aws.S3_REGION
-    const promotion_region = Meteor.settings.aws.S3_REGION
-    const promotion_bucket = Meteor.settings.aws.S3_KYC_BUCKET
     Meteor.methods({
       'kyc.insert': function (_info) {
         const { images, document, trustDockInfo, userInfo } = _info
@@ -53,21 +49,25 @@ Meteor.startup(function() {
           })
         })
       },
-      'kyc.uploadFile': function (userId, imageBase64, imageType) {
-        if (!userId || !imageBase64 || !imageType) throw new Meteor.Error(403, 'required')
+      'kyc.uploadFile': function (userId, imageBase64, imageType, S3Info) {
+        if (!userId || !imageBase64 || !imageType || !S3Info) throw new Meteor.Error(403, 'required')
+        console.log(S3Info)
+        S3.config.update({ accessKeyId: S3Info.s3Bucket, secretAccessKey: S3Info.s3SecretKey })
+        S3.config.region = S3Info.s3Region
+
         const filename = userId + '/personal',
           fileType = imageType,
           fileData = imageBase64.replace(/^data:\w+\/\w+;base64,/, ''),
           params = {
-            Bucket: promotion_bucket,
+            Bucket: S3Info.s3Bucket,
             Key: filename,
             ContentType: fileType,
             Body: new Buffer(fileData, 'base64'),
             ACL: 'public-read',
           }
-        const s3Path = `https://s3-${promotion_region}.amazonaws.com/${promotion_bucket}/filename`
+        const s3Path = `https://s3-${S3Info.s3Region}.amazonaws.com/${S3Info.s3Bucket}/filename`
         return new Promise((resolve, reject) => {
-          s3.putObject(params, Meteor.bindEnvironment(function (err, data) {
+          S3.putObject(params, Meteor.bindEnvironment(function (err, data) {
             if (err) {
               console.log("Err: upload failed :" + err)
               reject(err)

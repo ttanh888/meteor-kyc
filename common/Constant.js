@@ -1,3 +1,6 @@
+export const KYC_INPROGRESS_STATUS = 'in_progress'
+export const KYC_APPROVED_STATUS = 'approved'
+export const KYC_DENIED_STATUS = 'denied'
 export const KYC_PERSONAL_DOCUMENT_TYPE = [
   { name: 'Passport', value: 'passport'},
   { name: 'Drivers License', value: 'drivers_license'},
@@ -16,3 +19,4 @@ export const KYC_ERROR_CODE = {
   unsupported: 'The document is unsupported',
   unreadable: 'The image is unreadable, please select JPEG, PNG or GIF image'
 }
+

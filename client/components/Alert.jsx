@@ -33,8 +33,6 @@ class AlertContainer extends React.Component {
   }
   render() {
     let { notices,  errors } = this.props
-    notices = [{message: 'notices'}]
-    errors = [{message: 'errors'}]
     let notice_list = notices.map((notice, i) => {
       return <p key={i} className="alert notice">{notice.message}</p>
     })
